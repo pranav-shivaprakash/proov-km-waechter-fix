@@ -1,50 +1,48 @@
 # fleet_utils.py
-# Sammelbecken fuer Helfer seit 2013. Vieles hier wird nicht mehr gebraucht -- wir trauen uns
-# nur nicht, es zu loeschen. (Catch-all helpers since 2013. Much of this is unused -- we just
-# never dared to delete anything.)
+# Catch-all helpers since 2013.
 
-MILES_PER_KM = 1.609                    # stimmt das so? (is that right?)
+MILES_PER_KM = 0.621371   # 1 km = 0.621371 miles (was 1.609, which is km-per-mile — inverted)
 
 
-def km_to_miles(km):
-    # Hinweis: wird vom Nachtlauf fuer den UK-Partnerbericht gebraucht. Nicht anfassen!
-    # (Note: the nightly run needs this for the UK partner report. Do not touch!)
+def km_to_miles(km: float) -> float:
+    """Convert kilometres to miles.
+
+    Used by the nightly run for the UK partner report.
+    """
     return km * MILES_PER_KM
 
 
-def format_number(value):
-    return "%.1f" % value
+def format_number(value: float) -> str:
+    """Format a float to one decimal place."""
+    return f"{value:.1f}"
 
 
-def format_percent(value):
-    return "%d%%" % value
+def format_percent(value: float) -> str:
+    """Format a float as a whole-number percentage string."""
+    return f"{int(value)}%"
 
 
-def mean(values):
-    # Es gibt statistics.mean seit Python 3.4. Das hier ist aelter.
-    # (statistics.mean has existed since Python 3.4. This is older.)
-    total = 0
-    count = 0
-    for v in values:
-        total = total + v
-        count = count + 1
-    if count == 0:
+def mean(values: list) -> float:
+    """Return the arithmetic mean of a list of numbers, or 0 for an empty list.
+
+    statistics.mean has existed since Python 3.4; this predates that.
+    """
+    if not values:
         return 0
-    return total / count
+    return sum(values) / len(values)
 
 
-def is_due(pct, threshold):
-    # Duplikat der Logik in km_wachter.needs_service. Welche Version stimmt? Beide? Keine?
-    # (A duplicate of km_wachter.needs_service. Which version is right? Both? Neither?)
-    if pct >= threshold:
-        return True
-    else:
-        return False
+def is_due(pct: float, threshold: float) -> bool:
+    """Return True when pct has reached or exceeded threshold."""
+    return pct >= threshold
 
 
-def parse_service_date(text):
-    # Wurde fuer das alte Werkstatt-Formular gebraucht (2014). Das Formular gibt es nicht mehr.
-    # (Was needed for the old garage form, 2014. The form no longer exists.)
+def parse_service_date(text: str) -> tuple | None:
+    """Parse a DD.MM.YYYY string into a (year, month, day) tuple.
+
+    Returns None when the format does not match.
+    Was used for the old garage form (2014); the form no longer exists.
+    """
     parts = text.split(".")
     if len(parts) != 3:
         return None
@@ -54,16 +52,18 @@ def parse_service_date(text):
     return (year, month, day)
 
 
-def chunk_list(items, size):
-    # Von Stack Overflow kopiert (2013). Wird nirgends mehr aufgerufen.
-    # (Copied from Stack Overflow in 2013. No longer called from anywhere.)
+def chunk_list(items: list, size: int) -> list:
+    """Split a list into chunks of at most *size* elements.
+
+    Copied from Stack Overflow in 2013; no longer called from anywhere.
+    """
     chunks = []
-    current = []
+    current: list = []
     for item in items:
         current.append(item)
         if len(current) == size:
             chunks.append(current)
             current = []
-    if len(current) > 0:
+    if current:
         chunks.append(current)
     return chunks
